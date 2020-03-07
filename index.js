@@ -1,14 +1,8 @@
+const axios = require("axios");
 const inquirer = require("inquirer");
-
 const fs = require("fs");
 
 async function getUserInfo() {
-  let { userName } = await inquirer.prompt({
-    message: "Enter your GitHub username",
-    name: "userName",
-    type: "input"
-  });
-
   let { projName } = await inquirer.prompt({
     messgae: "what is your project's name?",
     name: "projName",
@@ -38,20 +32,33 @@ async function getUserInfo() {
     name: "tests",
     type: "input"
   });
-  let { linkedinURL } = await inquirer.prompt({
-    message: "What's your linkedIn?",
-    name: "linkedinURL",
-    type: "input"
-  });
-  createReadMe(
-    userName,
-    projName,
-    projDescription,
-    projLicense,
-    dependencies,
-    tests,
-    linkedinURL
-  );
+  // let { image } = await inquirer.prompt({
+  //   message: "What's your linkedIn?",
+  //   name: "image",
+  //   type: "input"
+  // });
+
+  inquirer
+    .prompt({
+      message: "Enter your GitHub username:",
+      name: "userName"
+    })
+    .then(function({ userName }) {
+      const queryUrl = `https://api.github.com/users/${userName}/repos?per_page=100`;
+
+      axios.get(queryUrl).then(function(res) {
+        const image = res.data[0].owner.avatar_url;
+        createReadMe(
+          userName,
+          projName,
+          projDescription,
+          projLicense,
+          dependencies,
+          tests,
+          image
+        );
+      });
+    });
 }
 
 function createReadMe(
@@ -61,32 +68,16 @@ function createReadMe(
   projLicense,
   dependencies,
   tests,
-  linkedinURL
+  image
 ) {
-  let userInfo =
-    " username: " +
-    userName +
-    " Project Name: " +
-    projName +
-    " Description: " +
-    projDescription +
-    " License: " +
-    projLicense +
-    " dependencies: " +
-    dependencies +
-    " tests: " +
-    tests +
-    " LinkedIn URL: " +
-    linkedinURL;
-  fs.appendFile("README.md", userInfo, function(err) {
+  let userInfo = `
+  # ${projName} 	\n \n [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [GitHub](https//:github.com/${userName} "GitHub") \n \n ## Description \n \n ${projDescription} \n \n ## Table of Contents \n \n ![Markdown Logo](${image})`;
+
+  fs.writeFile("README.md", userInfo, function(err) {
     if (err) throw err;
-    console.log("Saved!");
+    console.log("File Created!");
   });
 }
-
-// getUserInfo().then(function(response) {
-//   console.log("response: ");
-//   console.log(response);
-// });
 
 getUserInfo();
