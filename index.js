@@ -15,6 +15,18 @@ async function getUserInfo() {
     type: "input"
   });
 
+  let { install } = await inquirer.prompt({
+    message: "What should the user do to install the app?",
+    name: "install",
+    type: "input"
+  });
+
+  let { usage } = await inquirer.prompt({
+    message: "What should the user know before using the app?",
+    name: "usage",
+    type: "input"
+  });
+
   let { projLicense } = await inquirer.prompt({
     message: "What kind of license should your project have?",
     name: "projLicense",
@@ -22,7 +34,7 @@ async function getUserInfo() {
   });
 
   let { dependencies } = await inquirer.prompt({
-    message: "What command should be run to install deoendencies?",
+    message: "Does the user need to install any deoendencies?",
     name: "dependencies",
     type: "input"
   });
@@ -52,6 +64,8 @@ async function getUserInfo() {
           userName,
           projName,
           projDescription,
+          install,
+          usage,
           projLicense,
           dependencies,
           tests,
@@ -65,14 +79,52 @@ function createReadMe(
   userName,
   projName,
   projDescription,
+  install,
+  usage,
   projLicense,
   dependencies,
   tests,
   image
 ) {
   let userInfo = `
-  # ${projName} 	\n \n [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [GitHub](https//:github.com/${userName} "GitHub") \n \n ## Description \n \n ${projDescription} \n \n ## Table of Contents \n \n ![Markdown Logo](${image})`;
+  # ${projName} 
+  	\n \n [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  \n \n ## Description \n \n
+  ${projDescription} \n \n 
+  ## Table of Contents
+  
+  \*[Installations](#instalations)
+  
+  \*[Usage](#usage)
+  
+  \*[Dependencies](#dependencies)
+  
+  \*[Tests](#tests)
+  
+  \*[Questions](#questions)\n
+  
+  ## Installation
+  ${install}
+  
+  ## Usage
+  ${usage}
+
+  ## Dependencies
+  ${dependencies}
+  
+  ## License 
+  ${projLicense}
+
+  ## Tests
+
+  ${tests}
+  
+  ## Questions
+  
+  ![Markdown Logo](${image})
+  
+  If you have questions, please contact me via 
+  [GitHub](https//:github.com/${userName} "GitHub")`;
 
   fs.writeFile("README.md", userInfo, function(err) {
     if (err) throw err;
